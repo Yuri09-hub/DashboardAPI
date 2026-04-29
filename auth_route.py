@@ -51,6 +51,7 @@ async def login_form(form_data: OAuth2PasswordRequestForm = Depends(),session: S
         "access_token": access_token,
         "token_type": "bearer"
     }
+
 @auth_router.get("/refresh")
 async def refresh(user:User=Depends(verify_token)):
     access_token = creat_token(user.id)
@@ -58,5 +59,3 @@ async def refresh(user:User=Depends(verify_token)):
         "access_token": access_token,
         "token_type": "bearer"
     }
-
-
