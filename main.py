@@ -1,5 +1,3 @@
-import os
-
 from fastapi import FastAPI
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer
@@ -18,4 +16,6 @@ becrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 Oauth2_schema = OAuth2PasswordBearer(tokenUrl="auth/login-form")
 from auth_route import auth_router
+from form_route import form_route
 app.include_router(auth_router)
+app.include_router(form_route)
