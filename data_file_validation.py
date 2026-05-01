@@ -32,6 +32,10 @@ def column_converter(df, y, y_type):
         df[y] = df[y].astype(bool)
     elif y_type == "Datetime":
         df[y] = pd.to_datetime(df[y], format="%Y-%m-%d")
+    elif y_type == "String":
+        df[y] = df[y].str[:4] + "..."
+        df[y] = df[y].str.strip()
+        df[y] = df[y].str.title()
 
     return df
 
@@ -39,7 +43,8 @@ def column_converter(df, y, y_type):
 def data_set_clean(df):
     df.columns = df.columns.str.strip()
     df = df.dropna()
-    df = df.head(10)
+    df = df.head(15)
+
     return df
 
 
@@ -50,6 +55,9 @@ def file_dataframe(file, y, x, y_type, x_type):
         df = pd.read_excel(file.file)
     else:
         raise HTTPException(status_code=400, detail="File type not supported")
+
+    if len(df.columns) > 2:
+        df = df[[y,x]]
 
     df = data_set_clean(df)
     df = column_converter(df, y, y_type)
@@ -63,7 +71,15 @@ def chart_generator(file_df, chart_type, y, x):
         raise HTTPException(status_code=400, detail="Column not found")
 
     fig, ax = plt.subplots()
-    file_df.plot(color='blue',kind=chart_type, y=y, x=x, ax=ax)
+
+    if pd.api.types.is_string_dtype(file_df[y]):
+        file_df.plot(color='blue', kind=chart_type, y=x, x=y, ax=ax)
+        plt.ylabel(x)
+        plt.xlabel(y)
+    else:
+        file_df.plot(color='blue', kind=chart_type, y=y, x=x, ax=ax)
+        plt.ylabel(y)
+        plt.xlabel(x)
 
     buf = BytesIO()
     fig.savefig(buf, format='png')
