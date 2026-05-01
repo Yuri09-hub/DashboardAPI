@@ -3,53 +3,67 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from io import BytesIO
 from enum import Enum
-import openpyxl
+
 
 class charType(str, Enum):
-    plot = "plot"
     bar = "bar"
     scatter = "scatter"
     line = "line"
     hist = "hist"
 
+
 class columnType(str, Enum):
-    integer = "int"
+    integer = "integer"
     float = "float"
     boolean = "boolean"
-    string = "string"
+    string = "String"
     datetime = "datetime"
 
-def column_converter(df,y,x, y_type:Enum, x_type:Enum):
-    if y_type == x_type == "String":
-        raise HTTPException(status_code=400,detail="You cannot have two columns of type string.")
-    
 
+def column_converter(df, y, y_type):
+    if y not in df.columns:
+        raise HTTPException(status_code=400, detail="Column not found")
 
-def clean(df):
-    df = df.dropna()
-    df.columns = df.columns.str.strip()
+    if y_type == "integer":
+        df[y] = pd.to_numeric(df[y], errors="coerce", downcast="integer")
+    elif y_type == "float":
+        df[y] = pd.to_numeric(df[y], errors="coerce", downcast="float")
+    elif y_type == "boolean":
+        df[y] = df[y].astype(bool)
+    elif y_type == "Datetime":
+        df[y] = pd.to_datetime(df[y], format="%Y-%m-%d")
+
     return df
 
-def file_dataframe(file,y,x):
+
+def data_set_clean(df):
+    df.columns = df.columns.str.strip()
+    df = df.dropna()
+    df = df.head(10)
+    return df
+
+
+def file_dataframe(file, y, x, y_type, x_type):
     if file.filename.endswith(".csv"):
-        file_df = pd.read_csv(file.file,low_memory=False)
-        file_df = file_df[[y, x]]
-        return clean(file_df)
+        df = pd.read_csv(file.file)
     elif file.filename.endswith(".xlsx"):
-        file_df = pd.read_excel(file.file)
-        file_df = file_df[[y, x]]
-        return clean(file_df)
+        df = pd.read_excel(file.file)
     else:
-        raise HTTPException(status_code=400,detail="File type not supported")
+        raise HTTPException(status_code=400, detail="File type not supported")
+
+    df = data_set_clean(df)
+    df = column_converter(df, y, y_type)
+    df = column_converter(df, x, x_type)
+
+    return df
 
 
-def chart_generator(file_df,chart_type,y,x):
-
-    if x not in file_df.columns and y not in file_df.columns:
-        raise HTTPException(status_code=400,detail="Column not found")
+def chart_generator(file_df, chart_type, y, x):
+    if x not in file_df.columns or y not in file_df.columns:
+        raise HTTPException(status_code=400, detail="Column not found")
 
     fig, ax = plt.subplots()
-    file_df.plot(kind=chart_type, y=y, x=x)
+    file_df.plot(color='blue',kind=chart_type, y=y, x=x, ax=ax)
 
     buf = BytesIO()
     fig.savefig(buf, format='png')

@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from dependencies import get_session, verify_token
 from models import User, form
 from pathlib import Path
-from data_file_validation import charType, chart_generator, file_dataframe
+from data_file_validation import charType, chart_generator, file_dataframe, column_converter, columnType
 
 
 class PNGStreamingResponse(StreamingResponse):
@@ -17,8 +17,8 @@ form_route = APIRouter(tags=["form"], prefix="/form")
 
 
 @form_route.post("/uploadfile")
-async def upload_file( x:str, y:str, response:charType, user: User = Depends(verify_token),
-                      session: Session = Depends(get_session),file: UploadFile = File(...)):
+async def upload_file(y:str,y_type:columnType ,x:str, x_type:columnType, response:charType,
+                      user: User = Depends(verify_token),session: Session = Depends(get_session),file: UploadFile = File(...)):
 
     if file.filename.endswith(".csv") or file.filename.endswith(".xlsx"):
         file_path = file_save / file.filename
@@ -30,8 +30,9 @@ async def upload_file( x:str, y:str, response:charType, user: User = Depends(ver
         #session.add(locale)
         #session.commit()
 
-        file_df = file_dataframe(file, y.title(), x.title())
+        file_df = file_dataframe(file,y,x,y_type.value,x_type.value)
         buf = chart_generator(file_df, response.value,y,x)
+
         return StreamingResponse(buf, media_type="image/png")
     raise HTTPException(status_code=400, detail="Error3")
 
