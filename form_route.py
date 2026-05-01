@@ -17,23 +17,24 @@ form_route = APIRouter(tags=["form"], prefix="/form")
 
 
 @form_route.post("/uploadfile")
-async def upload_file(y:str,y_type:columnType ,x:str, x_type:columnType, response:charType,
-                      user: User = Depends(verify_token),session: Session = Depends(get_session),file: UploadFile = File(...)):
+async def upload_file(y_column:str,y_column_type:columnType ,x_column:str, x_column_type:columnType,
+                      response:charType,user: User = Depends(verify_token),
+                      session: Session = Depends(get_session),file: UploadFile = File(...)):
 
     if file.filename.endswith(".csv") or file.filename.endswith(".xlsx"):
         file_path = file_save / file.filename
         content = await file.read()
         file_path.write_bytes(content)
 
-        # save relative path file
-       # locale = form(file=str(file_path), user_id=user.id)
-        #session.add(locale)
-        #session.commit()
+        #save relative path file
+        locale = form(file=str(file.filename), user_id=user.id)
+        session.add(locale)
+        session.commit()
 
-        file_df = file_dataframe(file,y,x,y_type.value,x_type.value)
-        buf = chart_generator(file_df, response.value,y,x)
+        file_df = file_dataframe(file,y_column.title(),x_column.title(),y_column_type.value,x_column_type.value)
+        buf = chart_generator(file_df, response.value,y_column,x_column)
 
         return StreamingResponse(buf, media_type="image/png")
-    raise HTTPException(status_code=400, detail="Error3")
+    raise HTTPException(status_code=400, detail="File type not supported")
 
 
