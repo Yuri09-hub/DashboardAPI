@@ -12,11 +12,22 @@ class charType(str, Enum):
     line = "line"
     hist = "hist"
 
+class columnType(str, Enum):
+    integer = "int"
+    float = "float"
+    boolean = "boolean"
+    string = "string"
+    datetime = "datetime"
 
+def column_converter(df,y,x, y_type:Enum, x_type:Enum):
+    if y_type == x_type == "String":
+        raise HTTPException(status_code=400,detail="You cannot have two columns of type string.")
+    
 
 
 def clean(df):
     df = df.dropna()
+    df.columns = df.columns.str.strip()
     return df
 
 def file_dataframe(file,y,x):
@@ -33,8 +44,6 @@ def file_dataframe(file,y,x):
 
 
 def chart_generator(file_df,chart_type,y,x):
-
-    file_df.columns = file_df.columns.str.strip()
 
     if x not in file_df.columns and y not in file_df.columns:
         raise HTTPException(status_code=400,detail="Column not found")
