@@ -33,9 +33,15 @@ It is designed to simplify data visualization by handling data conversion, valid
 
 
 project/
+
 │
+
 ├── form_route.py # API routes (upload & request handling)
+
 ├── data_file_validation.py # Data processing & validation logic
+
 ├── chart_generator.py # Chart creation logic
+
 ├── venv/ # Virtual environment
+
 └── main.py # Application entry point
