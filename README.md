@@ -50,7 +50,7 @@ project/
 ---
 
 
-##Running the API
+## Running the API
 
 uvicorn main:app --reload
 
@@ -60,7 +60,7 @@ uvicorn main:app --reload
 http://127.0.0.1:8000/docs
 
 
-##System Logic
+## System Logic
 
 User uploads a dataset (CSV or Excel)
 
@@ -72,7 +72,7 @@ System converts data types if needed
 
 A chart is generated and returned as output
 
-##Author
+## Author
 
 Yuri Rodrigues
 
