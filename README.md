@@ -45,3 +45,35 @@ project/
 ├── venv/ # Virtual environment
 
 └── main.py # Application entry point
+
+
+---
+
+
+##Running the API
+
+uvicorn main:app --reload
+
+
+## API documentation:
+
+http://127.0.0.1:8000/docs
+
+
+##System Logic
+
+User uploads a dataset (CSV or Excel)
+
+API reads and validates the file
+
+User selects X and Y columns
+
+System converts data types if needed
+
+A chart is generated and returned as output
+
+##Author
+
+Yuri Rodrigues
+
+Angola 🇦🇴
